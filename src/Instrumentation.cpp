@@ -250,14 +250,20 @@ Function *Instrumentation::getOrDeclarePrintFunction(Module &module,
                                                      const std::string &name,
                                                      Type *valueType) {
   Function *func = module.getFunction(name);
-
-  if (func)
+  if (func) {
     return func;
+  }
 
-  Type *voidType = Type::getVoidTy(module.getContext());
-  Type *ptrType = Type::getInt8Ty(module.getContext());
+  LLVMContext &ctx = module.getContext();
 
-  std::vector<Type *> params = {valueType, ptrType, ptrType};
+  Type *voidType = Type::getVoidTy(ctx);
+  Type *i8PtrType = Type::getInt8PtrTy(ctx);
+
+  std::vector<Type *> params;
+  params.push_back(valueType);
+  params.push_back(i8PtrType);
+  params.push_back(i8PtrType);
+
   FunctionType *funcType = FunctionType::get(voidType, params, false);
 
   func = Function::Create(funcType, GlobalValue::ExternalLinkage, name, module);
