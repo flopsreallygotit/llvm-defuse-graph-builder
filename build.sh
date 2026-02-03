@@ -16,6 +16,8 @@ LLVM_LDFLAGS="$($LLVM_CONFIG --ldflags)"
 LLVM_LIBS="$($LLVM_CONFIG --libs core irreader support analysis)"
 LLVM_SYS="$($LLVM_CONFIG --system-libs)"
 
+# TODO[DKay]: Why not to use incremental build system like Makefile here?
+#
 rm -f obj/*.o
 
 $CXX $CXXFLAGS $LLVM_CXXFLAGS -Iinclude -c src/main.cpp            -o obj/main.o

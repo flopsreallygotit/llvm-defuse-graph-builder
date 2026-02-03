@@ -2,13 +2,15 @@
 #define GRAPH_VISUALIZER_H
 
 #include "llvm/IR/Value.h"
-#include <cstdint>
+#include <cstdint> //TODO[Dkay]: my LSP says that this header is unused. Pls, setup yours too
 #include <map>
-#include <set>
+#include <set> //TODO[Dkay]: my LSP says that this header is unused. Pls, setup yours too
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+// FIXME{Dkay}: this is weird. Why not to use `#inlcude` directive like
+// everyone?
 namespace llvm {
 class Value;
 class Instruction;
@@ -21,6 +23,10 @@ class TerminatorInst;
 class GraphVisualizer {
 public:
   GraphVisualizer();
+
+  // FIXME[Dkay]: Class should be either marked final or have an virtual dtor
+  // FIXME[Dkay]: break of the rule of zero: class has untrivial dtor
+  // FIXME[Dkay]: break of the rule of five: class has untrivial dtor and has not copy-, move- operators and copy-, move- ctors
   ~GraphVisualizer();
 
   bool buildCombinedGraph(llvm::Module &module,
@@ -31,6 +37,7 @@ public:
   void printStatistics() const;
 
 private:
+  // TODO[Dkay]: why to hide GraphNode interface inside, move it outside the class to improve code radability.
   struct GraphNode {
     llvm::Value *value = nullptr;
     std::string id;
@@ -38,7 +45,12 @@ private:
     std::string type;
     std::string runtimeValue;
 
-    bool isInstruction = false; // FIXME[flops]: Use enum for this or determine value type via llvm isa (or dyn_cast: it uses isa and casts value to needed class if possible)
+    bool isInstruction =
+        false; // FIXME[flops]: Use enum for this or determine value type via
+               // llvm isa (or dyn_cast: it uses isa and casts value to needed
+               // class if possible)
+               // [Dkay]: +++
+    
     bool isBasicBlock = false;
     bool isConstant = false;
     bool isArgument = false;
@@ -54,10 +66,11 @@ private:
     std::string functionName;
   };
 
-  struct BasicBlockInfo { // FIXME[flops]: BasicBlock class already contains that info
+  struct BasicBlockInfo { // FIXME[flops]: BasicBlock class already contains
+                          // that info
     std::string id;
     std::string label;
-    llvm::BasicBlock *blockPtr = nullptr; 
+    llvm::BasicBlock *blockPtr = nullptr;
     std::vector<std::string> instructions;
     std::string functionName;
   };
@@ -79,7 +92,7 @@ private:
 
   bool runtimeValuesLoaded_;
 
-  struct FunctionCallInfo {
+  struct FunctionCallInfo { // FIXME[Dkay]: llvm's function callee has same info
     std::string caller;
     std::string callee;
     int callOrder;
