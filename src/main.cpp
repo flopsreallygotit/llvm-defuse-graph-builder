@@ -1,3 +1,7 @@
+// FIXME[flops]: Don't use relative includes, better to pass -Iinclude and:
+// [flops]: #include "GraphVisualizer.h"
+// [flops]: #include "Instrumentation.h"
+
 #include "../include/GraphVisualizer.h"
 #include "../include/Instrumentation.h"
 
@@ -11,6 +15,7 @@
 #include <memory>
 #include <string>
 
+// [flops]: Just note that c++20 provides ends_with method: http://en.cppreference.com/w/cpp/string/basic_string/ends_with
 static bool endsWith(const std::string &s, const std::string &suffix) {
   if (s.size() < suffix.size())
     return false;
@@ -18,7 +23,7 @@ static bool endsWith(const std::string &s, const std::string &suffix) {
   return s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-static void printHelp() {
+static void printHelp() { // TODO[flops]: Use argv[0] there instead of ./bin/defuse-analyzer
   std::cout << "LLVM Def-Use Graph Builder\n\n"
             << "Usage:\n"
             << "  ./bin/defuse-analyzer --help\n"
@@ -43,15 +48,16 @@ static bool runCmd(const std::string &cmd) {
   return rc == 0;
 }
 
-static void ensureDir(const std::string &path) {
-  std::string cmd = "mkdir -p \"" + path + "\"";
+static void ensureDir(const std::string &path) { // TODO[flops]: Rename it into makeDir, getOrCreateDir or something else
+  std::string cmd = "mkdir -p \"" + path + "\""; // FIXME[flops]: Use runCmd there
   (void)std::system(cmd.c_str());
 }
 
 static std::string getOptMem2RegCmd() {
-  if (std::system("which opt > /dev/null 2>&1") != 0)
+  if (std::system("which opt > /dev/null 2>&1") != 0) // [flops]: Check build.sh
     return "";
 
+  // [flops]: You can pre-check format of opt commands on build stage too
   if (std::system("opt -S -passes=mem2reg --help > /dev/null 2>&1") == 0)
     return "opt -S -passes=mem2reg";
 
@@ -85,8 +91,9 @@ static bool instrumentll(const std::string &inLl, const std::string &outLl) {
 static bool buildAndRun(const std::string &instrumentedLl,
                         const std::string &outRuntimeLog,
                         const std::string &outExe) {
-  std::string exePath = outExe.empty() ? "program" : outExe;
+  std::string exePath = outExe.empty() ? "program" : outExe; // FIXME[flops]: Unsafe fallback to the `program`, give loud error and return false there
 
+  // FIXME[flops]: fail on launch from different directories, because of hardcoded `runtime/core_runtime.c`
   std::string buildCmd = "clang -O0 runtime/core_runtime.c \"" +
                          instrumentedLl + "\" -o \"" + exePath + "\"";
   if (!runCmd(buildCmd)) {
@@ -138,16 +145,17 @@ static bool buildGraph(const std::string &llFile, const std::string &runtimeLog,
   }
 
   if (std::system("which dot > /dev/null 2>&1") == 0) {
-    std::string png = outDot;
+    std::string png = outDot; 
     std::string svg = outDot;
 
     if (endsWith(png, ".dot")) {
-      png = png.substr(0, png.size() - 4) + ".png";
+      png = png.substr(0, png.size() - 4) + ".png"; // FIXME[flops]: Magic constants
       svg = svg.substr(0, svg.size() - 4) + ".svg";
     } else {
       png += ".png";
       svg += ".svg";
     }
+    // FIXME[flops]: Two copies is not the best approach here, jus append extension to outDot
     runCmd("dot -Tpng \"" + outDot + "\" -o \"" + png + "\" 2>/dev/null");
     runCmd("dot -Tsvg \"" + outDot + "\" -o \"" + svg + "\" 2>/dev/null");
   }
@@ -225,17 +233,19 @@ static int doAnalyze(const std::string &inputFile, const std::string &outDir) {
   std::cout << "  log:  " << rtLog << "\n";
   std::cout << "  dot:  " << dot << "\n";
   if (endsWith(dot, ".dot")) {
-    std::cout << "  png:  " << dot.substr(0, dot.size() - 4) << ".png\n";
+    std::cout << "  png:  " << dot.substr(0, dot.size() - 4) << ".png\n"; // TODO[flops]: This is part of buildGraph too, separate it and reuse 
     std::cout << "  svg:  " << dot.substr(0, dot.size() - 4) << ".svg\n";
   }
   return 0;
 }
 
 int main(int argc, char **argv) {
-  if (argc < 2) {
-    printHelp();
+  if (argc < 2) { // [flops]: Note if your prog must take at least one argument then it's better to use them without `-` prefix, like `defuse-analyzer analyze` (This is similar to git add e.t.c)
+    printHelp(); // [flops]: But that's cool that you control program scenarios via cli args
     return 1;
   }
+
+  // TODO[flops]: There are a lot of path / string utils there, transfer it to separate file / use funcs from LLVM / C++ stdlib 
 
   std::string cmd = argv[1];
 

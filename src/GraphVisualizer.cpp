@@ -27,7 +27,7 @@ GraphVisualizer::~GraphVisualizer() {}
 bool GraphVisualizer::buildCombinedGraph(Module &module,
                                          const std::string &runtimeLogFile) {
 
-  nodes_.clear();
+  nodes_.clear(); // TODO[flops]: Make reset method and use it there
   basicBlocks_.clear();
   runtimeValues_.clear();
   functionCalls_.clear();
@@ -51,7 +51,7 @@ bool GraphVisualizer::buildCombinedGraph(Module &module,
 
     for (auto &arg : function.args()) {
       std::string nodeId = getNodeId(&arg);
-      GraphNode node;
+      GraphNode node; // [flops]: Use = designated initializer GraphNode node = {.id=nodeId, ...};
       node.id = nodeId;
       node.label = getValueLabel(&arg);
       node.type = "argument";
@@ -343,7 +343,7 @@ std::string GraphVisualizer::getNodeId(Value *value) const {
     ss << "const_" << ci->getSExtValue();
     return ss.str();
   } else {
-    ss << "val_" << std::hex << (uintptr_t)value;
+    ss << "val_" << std::hex << (uintptr_t)value; // TODO[flops]: Use static_cast
     return ss.str();
   }
 }

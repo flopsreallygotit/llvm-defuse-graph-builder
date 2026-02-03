@@ -1,5 +1,8 @@
 #include <stdint.h>
 
+// TODO[flops]: It's better to locate it in tests/ (end to end) or use it as example
+// [flops]: UPD it's just a copy of tests/simple/simple.c so it's better to remove it completely
+
 static int compute(int a, int b) {
     int sum = a + b;
     int sum2 = sum + 2;

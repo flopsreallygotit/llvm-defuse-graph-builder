@@ -148,7 +148,7 @@ Constant *Instrumentation::createGlobalString(Module &module,
                                               const std::string &globalName) {
   Constant *strConst = ConstantDataArray::getString(module.getContext(), str);
 
-  auto *globalVar = module.getNamedGlobal(globalName);
+  auto *globalVar = module.getNamedGlobal(globalName); 
 
   if (!globalVar) {
     globalVar =

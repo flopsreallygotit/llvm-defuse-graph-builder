@@ -38,14 +38,14 @@ private:
     std::string type;
     std::string runtimeValue;
 
-    bool isInstruction = false;
+    bool isInstruction = false; // FIXME[flops]: Use enum for this or determine value type via llvm isa (or dyn_cast: it uses isa and casts value to needed class if possible)
     bool isBasicBlock = false;
     bool isConstant = false;
     bool isArgument = false;
     bool isTerminator = false;
     bool hasRuntimeValue = false;
 
-    llvm::BasicBlock *parentBlock = nullptr;
+    llvm::BasicBlock *parentBlock = nullptr; // TODO[flops]: use union there
 
     std::vector<std::string> operands;
     std::vector<std::string> defUseSuccessors;
@@ -54,10 +54,10 @@ private:
     std::string functionName;
   };
 
-  struct BasicBlockInfo {
+  struct BasicBlockInfo { // FIXME[flops]: BasicBlock class already contains that info
     std::string id;
     std::string label;
-    llvm::BasicBlock *blockPtr = nullptr;
+    llvm::BasicBlock *blockPtr = nullptr; 
     std::vector<std::string> instructions;
     std::string functionName;
   };
